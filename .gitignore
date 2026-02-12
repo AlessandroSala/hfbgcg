@@ -2,7 +2,7 @@ build/
 output/
 plots/
 figures/
-input/
+input/*
 !input/exec/
 !input/exec/**
 out
