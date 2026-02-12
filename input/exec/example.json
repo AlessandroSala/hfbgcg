@@ -4,27 +4,27 @@
     "outputDirectory": "test_dir",
     "maxIterations": 150,
     "energyTol": 1e-05,
-    "densityMix": 0.2,
-    "initialBeta2": 0.1,
+    "densityMix": 0.35,
+    "initialBeta2": 0.0,
     "box": {
-        "boxSize": 30.0,
+        "boxSize": 20.0,
         "axisMeshPoints": 30
     },
     "nucleus": {
-        "A": 110,
-        "Z": 40
+        "A": 44,
+        "Z": 20
     },
     "pairing": {
         "type": "HFB",
         "neutron": {
-          "HFbasisSize": 100,
-          "V0": 500.0
+          "HFbasisSize": 50,
+          "V0": 300.0
         },
         "proton": {
-          "HFbasisSize": 82,
-          "V0": 500.0
+          "HFbasisSize": 40,
+          "V0": 300.0
         }
     },
-    "constrainCOM": true,
+    "constrainCOM": false,
     "constraints": []
 }
