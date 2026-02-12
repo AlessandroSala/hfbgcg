@@ -1,6 +1,6 @@
 {
   "gcg": {
-        "maxIter": 10,
+        "maxIter": 6,
         "nev": 10,
         "tol": 1e-02,
         "cgTol": 1e-04,

@@ -40,6 +40,20 @@ void IterationData::logData(
   //      << ", exchange energy: " << SlaterCoulombEnergy(grid) << endl;
   cout << "Pairing energy: Neutrons: " << EpairN() << ", Protons: " << EpairP()
        << endl;
+  unsigned int unbound_states = 0;
+  for (int i = 0; i < neutronsEigenpair.second.size(); i++) {
+    if (neutronsEigenpair.second(i) > 0.0) {
+      unbound_states++;
+    }
+  }
+  cout << "Unbound states in HF basis, Neutrons: " << unbound_states;
+  unbound_states = 0;
+  for (int i = 0; i < protonsEigenpair.second.size(); i++) {
+    if (protonsEigenpair.second(i) > 0.0) {
+      unbound_states++;
+    }
+  }
+  cout << ", Protons: " << unbound_states << endl;
   double fermiN = neutronsEigenpair.second(N - 1);
   double fermiP = protonsEigenpair.second(Z - 1);
   if (input.pairingType == PairingType::hfb) {
