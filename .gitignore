@@ -2,4 +2,6 @@ build/
 output/
 plots/
 figures/
+input/
+!input/exec
 out
