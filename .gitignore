@@ -3,5 +3,5 @@ output/
 plots/
 figures/
 input/
-!input/exec/
+!input/exec/**
 out
