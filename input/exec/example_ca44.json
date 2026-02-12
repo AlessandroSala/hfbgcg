@@ -1,7 +1,7 @@
 {
     "functional": "SLy5",
-    "outputName": "test",
-    "outputDirectory": "test_dir",
+    "outputName": "Ca44",
+    "outputDirectory": "Ca44",
     "maxIterations": 150,
     "energyTol": 1e-05,
     "densityMix": 0.35,
