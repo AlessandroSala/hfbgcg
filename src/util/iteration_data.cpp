@@ -876,6 +876,10 @@ void IterationData::updateQuantities(
       solvePairingBCS(neutronsPair, protonsPair);
       neutrons = neutronsFromBCS(neutronsPair.first);
       protons = protonsFromBCS(protonsPair.first);
+      HFBResultN.energy = bcsN.Epair;
+      HFBResultP.energy = bcsP.Epair;
+      HFBResultN.lambda = bcsN.lambda;
+      HFBResultP.lambda = bcsP.lambda;
     } else {
       if (iter == input.startHFBIter) {
         HFBResultN.pairingField = Eigen::VectorXd::Zero(0);

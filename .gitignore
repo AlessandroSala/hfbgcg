@@ -3,6 +3,5 @@ output/
 plots/
 figures/
 input/*
-!input/exec/
-!input/exec/**
+!input/exec/example_ca44.json
 out
