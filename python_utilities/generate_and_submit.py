@@ -43,7 +43,7 @@ for t in targets:
     subprocess.run([
         "sbatch",
         "--job-name", run_name,
-        "python_utilities/run.slurm",
+        "python_utilities/run_script.slurm",
         str(input_path)
     ])
 
