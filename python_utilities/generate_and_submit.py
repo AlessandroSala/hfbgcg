@@ -44,7 +44,7 @@ for t in targets:
         "sbatch",
         "--job-name", run_name,
         "python_utilities/run_script.slurm",
-        str(input_path)
+        f"{run_name}.json"
     ])
 
 print("All jobs submitted.")
