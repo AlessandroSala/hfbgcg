@@ -23,12 +23,14 @@ bool InputParser::check() {
       std::cout << "Pairing eta must be between 0 and 1" << std::endl;
       return false;
     }
-    if (pairingN.additionalStates <= 0) {
+    if (pairingN.additionalStates < 0 ||
+        (pairingN.active && pairingN.additionalStates <= 0)) {
       std::cout << "Neutron HF basis size must be larger than particle number"
                 << std::endl;
       return false;
     }
-    if (pairingP.additionalStates <= 0) {
+    if (pairingP.additionalStates < 0 ||
+        (pairingP.active && pairingP.additionalStates <= 0)) {
       std::cout << "Proton HF basis size must be larger than particle number"
                 << std::endl;
       return false;

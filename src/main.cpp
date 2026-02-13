@@ -54,7 +54,7 @@ int main(int argc, char **argv) {
       std::filesystem::recursive_directory_iterator;
   for (const auto &dirEntry : recursive_directory_iterator("input/exec")) {
     if (inputName != "" && inputName != dirEntry.path().filename()) {
-      cout << "Skipping " << dirEntry.path().filename() << endl;
+      // cout << "Skipping " << dirEntry.path().filename() << endl;
       continue;
     }
     cout << "Reading input from " << dirEntry.path() << endl;
@@ -268,12 +268,12 @@ int main(int argc, char **argv) {
         Wavefunction::normalize(newNeutronsEigenpair.first, grid);
         Wavefunction::normalize(newProtonsEigenpair.first, grid);
 
-        // if (input.pairingType != PairingType::none) {
-        //   newNeutronsEigenpair.first =
-        //       Wavefunction::TROrder(newNeutronsEigenpair.first);
-        //   newProtonsEigenpair.first =
-        //       Wavefunction::TROrder(newProtonsEigenpair.first);
-        // }
+        if (input.pairingType != PairingType::none) {
+          newNeutronsEigenpair.first =
+              Wavefunction::TROrder(newNeutronsEigenpair.first);
+          newProtonsEigenpair.first =
+              Wavefunction::TROrder(newProtonsEigenpair.first);
+        }
 
         if (hfIter > 0) {
           MatrixXcd tmp;

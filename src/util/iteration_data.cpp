@@ -46,7 +46,7 @@ void IterationData::logData(
       unbound_states++;
     }
   }
-  cout << "Unbound states in HF basis, Neutrons: " << unbound_states;
+  cout << "E>0 states in HF basis, Neutrons: " << unbound_states;
   unbound_states = 0;
   for (int i = 0; i < protonsEigenpair.second.size(); i++) {
     if (protonsEigenpair.second(i) > 0.0) {
@@ -681,6 +681,11 @@ HFBResult IterationData::solvePairingHFB(
     double mixKappaField = 0.1;
     Eigen::VectorXd kappa_r =
         kappa_field(phi_rev, result.kappa, fermi_factors, start, end);
+
+    // if (result.pairingField.size() > 0) {
+    //   kappa_r = input.densityMix * kappa_r +
+    //             (1.0 - input.densityMix) * result.pairingField;
+    // }
 
     Eigen::MatrixXd Delta =
         delta_matrix(phi_rev, kappa_r, fermi_factors, params, start, end);
