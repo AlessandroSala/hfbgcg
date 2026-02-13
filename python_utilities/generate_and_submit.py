@@ -10,7 +10,6 @@ INPUT_DIR = Path("input/exec")
 OUTPUT_BASE = Path("output")
 
 INPUT_DIR.mkdir(parents=True, exist_ok=True)
-OUTPUT_BASE.mkdir(exist_ok=True)
 
 targets = np.array([round(x * 0.1, 2) for x in range(-2, 3)])
 A = 44
