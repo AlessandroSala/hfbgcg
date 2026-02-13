@@ -45,6 +45,8 @@ int main(int argc, char **argv) {
 
   std::string inputName = "";
 
+  std::cout << "Using " << Eigen::nbThreads() << " threads" << std::endl;
+
   if (argc > 1) {
     cout << "Trying to read input from " << argv[1] << endl;
     inputName = argv[1];
