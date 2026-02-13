@@ -9,7 +9,6 @@ TEMPLATE = "python_utilities/template.json"
 INPUT_DIR = Path("input/exec")
 OUTPUT_BASE = Path("output")
 
-INPUT_DIR.mkdir(parents=True, exist_ok=True)
 
 targets = np.array([round(x * 0.1, 2) for x in range(-2, 3)])
 A = 44
