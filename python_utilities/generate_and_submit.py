@@ -27,7 +27,7 @@ for t in targets:
     data = deepcopy(template)
 
     run_name = f"t{t:+.2f}".replace(".", "p")
-    out_dir = OUTPUT_BASE / run_name
+    out_dir = run_name
     out_dir.mkdir(exist_ok=True)
 
     data["constraints"][0]["target"] = t/prefactor
