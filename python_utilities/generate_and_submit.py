@@ -26,7 +26,6 @@ for t in targets:
 
     run_name = f"t{t:+.2f}".replace(".", "p")
     out_dir = run_name
-    out_dir.mkdir(exist_ok=True)
 
     data["constraints"][0]["target"] = t/prefactor
     data["initialBeta2"] = t
