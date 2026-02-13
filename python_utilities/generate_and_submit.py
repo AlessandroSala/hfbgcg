@@ -38,3 +38,13 @@ for t in targets:
     with open(input_path, "w") as f:
         json.dump(data, f, indent=2)
 
+    # --- submit ---
+    subprocess.run([
+        "sbatch",
+        "--job-name", run_name,
+        "run.slurm",
+        str(input_path)
+    ])
+
+print("All jobs submitted.")
+
