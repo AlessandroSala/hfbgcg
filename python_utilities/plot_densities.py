@@ -7,7 +7,7 @@ from matplotlib.colors import LinearSegmentedColormap
 from matplotlib import cm
 
 name = "mg"
-density = np.genfromtxt("output/o16/tensor_test_output/fields/density.csv")
+density = np.genfromtxt("output/rh/rh_output/fields/density.csv")
 #density = np.genfromtxt("output/density.csv")
 n = 30
 n2 = n // 2
@@ -16,7 +16,7 @@ a = 10
 mat_or = density.reshape((n, n, n))
 
 #mat = mat[:, :, n // 2]
-mat = mat_or[:, :, n2]
+mat = mat_or[n2, :, :]
 #mat = mat[n // 2, :, :]
 
 x = np.linspace(-a, a, n)

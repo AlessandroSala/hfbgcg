@@ -1,0 +1,36 @@
+{
+    "constrainCOM": true,
+    "constraints": [
+      {
+        "l": 2,
+        "m": 0,
+        "target": "__TARGET__"
+      }
+    ],
+    "functional": "SLy5",
+    "outputName": "Ca44",
+    "outputDirectory": "Ca44",
+    "maxIterations": 150,
+    "energyTol": 1e-05,
+    "densityMix": 0.35,
+    "initialBeta2": "__INITIAL_BETA2__",
+    "box": {
+        "boxSize": 20.0,
+        "axisMeshPoints": 30
+    },
+    "nucleus": {
+        "A": 44,
+        "Z": 20
+    },
+    "pairing": {
+        "type": "HFB",
+        "neutron": {
+          "HFbasisSize": 50,
+          "V0": 300.0
+        },
+        "proton": {
+          "HFbasisSize": 50,
+          "V0": 300.0
+        }
+    }
+}

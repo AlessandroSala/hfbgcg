@@ -63,7 +63,7 @@ int main(int argc, char **argv) {
       continue;
     }
 
-    Output out("output/" + input.outputDirectory);
+    Output out("output/" + input.outputDirectory, input.getOutputName());
 
     auto computationBegin = std::chrono::steady_clock::now();
 
@@ -350,14 +350,20 @@ int main(int argc, char **argv) {
         integralEnergy = newIntegralEnergy;
         HFEnergy = newHFEnergy;
         data.logData(neutronsEigenpair, protonsEigenpair, constraints);
+        if (hfIter % 5 == 0)
+          out.logStatus(&data, hfIter, integralEnergy, data.energyDiff, false);
       }
+      bool hasConverged = false;
       if (hfIter < input.getCalculation().hf.cycles) {
         std::cout << "Calculation converged in " << hfIter << " iterations."
                   << std::endl;
+        hasConverged = true;
       } else {
         std::cout << "Calculation did not converge in " << hfIter
                   << " iterations." << std::endl;
       }
+      out.logStatus(&data, hfIter, integralEnergy, enErrors.back(),
+                    hasConverged);
 
       // cout << "Neutrons " << endl;
       // Wavefunction::printShells(neutronsEigenpair, grid);

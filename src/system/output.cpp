@@ -15,6 +15,19 @@
 #include <regex>
 #include <utility>
 
+void Output::logStatus(IterationData *data, int iter, double energy,
+                       double error, bool converged) {
+  std::string statusFile = folder + "/status.json";
+  std::ofstream jsonOut(statusFile);
+  nlohmann::json jsonEntry = {
+      {"iter", iter},
+      {"energy", energy},
+      {"error", error},
+      {"converged", converged},
+  };
+  jsonOut << jsonEntry.dump(4);
+}
+
 bool contains(const std::vector<std::string> &vec, const std::string &str) {
   return std::find(vec.begin(), vec.end(), str) != vec.end();
 }
@@ -82,8 +95,9 @@ double Output::x2(IterationData *data, const Grid &grid, char dir) {
   return res / rho.sum();
 }
 
-Output::Output() : Output("output") {}
-Output::Output(std::string folder_) : folder(folder_) {
+Output::Output() : Output("output", "no_name") {}
+Output::Output(std::string folder_, std::string outputName_)
+    : folder(folder_), outputName(outputName_) {
   namespace fs = std::filesystem;
   fs::create_directory("output");
   fs::create_directory(folder);
@@ -200,12 +214,15 @@ void Output::shellsToFile(
 
   double eKin = iterationData->kineticEnergy();
   double skyrmeEnergy = iterationData->totalEnergyIntegral();
+  double totEnInt = eKin + skyrmeEnergy;
 
   file << "=== Convergence ===" << std::endl;
   file << "Iterations: " << iterations << std::endl;
   file << "Energy tolerance: " << input.getCalculation().hf.energyTol << " MeV"
        << std::endl;
   file << "CPU time: " << cpuTime << " s" << std::endl;
+  file << "Energy error: " << std::abs(totEnInt - energies.back()) << " MeV"
+       << std::endl;
   file << std::endl;
 
   file << "=== Density Functional contributions ===" << std::endl;
@@ -233,7 +250,6 @@ void Output::shellsToFile(
   file << "E coulomb exchange: " << iterationData->SlaterCoulombEnergy(grid)
        << " MeV" << std::endl;
 
-  double totEnInt = eKin + skyrmeEnergy;
   file << "E_INT: " << totEnInt << " MeV" << std::endl;
 
   double SPE = 0.5 * (neutronShells.second.sum() + protonShells.second.sum());
@@ -284,7 +300,7 @@ void Output::shellsToFile(
     }
   }
 
-  std::string outputFilesDir = folder + "/" + fileName + "_output/";
+  std::string outputFilesDir = folder + "/";
   std::filesystem::create_directory(outputFilesDir);
 
   std::string dataOutputDir = outputFilesDir + "data/";
@@ -360,9 +376,9 @@ void Output::shellsToFile(
            .pow(2))
           .pow(-1);
 
-  matrixToFile(dataOutputDirectory + "C_p.csv", CP);
-  matrixToFile(dataOutputDirectory + "C.csv", C);
-  matrixToFile(dataOutputDirectory + "C_n.csv", CN);
+  // matrixToFile(dataOutputDirectory + "C_p.csv", CP);
+  // matrixToFile(dataOutputDirectory + "C.csv", C);
+  // matrixToFile(dataOutputDirectory + "C_n.csv", CN);
 
   double constraintsEnergy = 0.0;
   for (auto &&constraint : constraints) {
@@ -379,7 +395,6 @@ void Output::shellsToFile(
       {"gamma", gamma * 180.0 / M_PI},
       {"a", a},
       {"iter", iterations},
-      {"constraintsEnergy", constraintsEnergy},
       {"step", grid.get_h()},
   };
   nlohmann::json jsonOutput;
