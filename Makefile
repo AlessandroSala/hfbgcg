@@ -1,10 +1,11 @@
 CXX = g++
 
 CXXFLAGS = -Wall -std=c++17 -O3 -march=native -DNDEBUG -fopenmp \
-           -I include -I /usr/include/eigen3 -MMD -MP
+           -I include -I third_party/eigen -MMD -MP 
+					 #-DEIGEN_USE_BLAS -DEIGEN_USE_LAPACKE
 
 LDFLAGS  = -fopenmp
-LDLIBS   = -lopenblas -llapack
+#LDLIBS = -llapacke -lopenblas -lpthread -lgfortran -lm
 
 SRC_DIR = src
 BUILD_DIR = build

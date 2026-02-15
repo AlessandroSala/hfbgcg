@@ -1,7 +1,4 @@
 #pragma once
-#define EIGEN_USE_BLAS
-
-#define EIGEN_USE_LAPACKE
 
 #include "types.hpp"
 #include <Eigen/StdVector>

@@ -119,8 +119,9 @@ void Output::shellsToFile(
   auto grid = *Grid::getInstance();
   int N = input.getZ();
   int Z = input.getA() - N;
-  auto neutrons = neutronShells.first(Eigen::all, Eigen::seq(0, N - 1));
-  auto protons = protonShells.first(Eigen::all, Eigen::seq(0, Z - 1));
+  auto neutrons =
+      neutronShells.first(Eigen::indexing::all, Eigen::seq(0, N - 1));
+  auto protons = protonShells.first(Eigen::indexing::all, Eigen::seq(0, Z - 1));
   Eigen::VectorXd rho = *(iterationData->rhoN) + *(iterationData->rhoP);
 
   auto fileMode = mode == 'a' ? std::ios_base::app : std::ios_base::out;

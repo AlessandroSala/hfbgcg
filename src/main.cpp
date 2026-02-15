@@ -25,6 +25,7 @@
 #include "util/utilities.hpp"
 #include "util/wavefunction.hpp"
 #include "woods_saxon/deformed_woods_saxon.hpp"
+#include <Eigen/Core>
 #include <chrono>
 #include <cmath>
 #include <experimental/filesystem>
@@ -33,6 +34,7 @@
 #include <memory>
 #include <skyrme/skyrme_so.hpp>
 #include <skyrme/skyrme_u.hpp>
+#include <thread>
 #include <vector>
 
 int main(int argc, char **argv) {
@@ -41,7 +43,11 @@ int main(int argc, char **argv) {
   using namespace nuclearConstants;
   using namespace Utilities;
 
-  Eigen::initParallel();
+  // Eigen::initParallel();
+  int n_threads = std::thread::hardware_concurrency();
+  std::cout << "threads: " << n_threads << std::endl;
+  omp_set_num_threads(n_threads);
+  Eigen::setNbThreads(n_threads);
 
   std::string inputName = "";
 
@@ -235,7 +241,9 @@ int main(int argc, char **argv) {
 
         auto hN = skyrmeHam.buildMatrix();
 
-        double dt = input.getData()["dt"];
+        double dt = input.getData().contains("dt")
+                        ? input.getData()["dt"].get<double>()
+                        : 0.001;
         pair<MatrixXcd, VectorXd> newNeutronsEigenpair;
 
         double errThreshIMG = 0.0;
