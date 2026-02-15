@@ -21,6 +21,7 @@ typedef struct UV {
   Eigen::MatrixXd V;
   Eigen::MatrixXd kappa;
   Eigen::VectorXd pairingField;
+  Eigen::MatrixXd Delta;
   double lambda;
   double energy;
 } UV;
@@ -56,6 +57,10 @@ public:
   std::shared_ptr<Eigen::MatrixX3d> BP;
   std::shared_ptr<Eigen::VectorXd> UCoul;
 
+  Eigen::VectorXd pairingInteractionN;
+  Eigen::VectorXd pairingInteractionP;
+  Eigen::VectorXd UpairN;
+  Eigen::VectorXd UpairP;
   UV HFBResultN;
   UV HFBResultP;
   double oldLambdaN;
@@ -72,6 +77,8 @@ public:
 
   void mixDensity(const Eigen::MatrixXcd &newDensity,
                   std::vector<std::shared_ptr<Eigen::MatrixXcd>> history);
+  Eigen::VectorXd phPairingField(const Eigen::VectorXd &kappa,
+                                 PairingParameters params);
 
   typedef struct BCSPairingSolution {
     BCS::BCSResult bcsN;

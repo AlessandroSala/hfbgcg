@@ -105,8 +105,11 @@ InputParser::InputParser(std::string inputFile) {
       pairingType = PairingType::none;
       pairing = false;
     }
+    useLN = pairingData.contains("useLN") ? pairingData["useLN"].get<bool>()
+                                          : false;
 
     if (pairingData.contains("neutron")) {
+
       pairingN = PairingParameters{
           pairingData["neutron"].contains("window")
               ? pairingData["neutron"]["window"].get<double>()
@@ -116,9 +119,7 @@ InputParser::InputParser(std::string inputFile) {
           pairingData["neutron"].contains("alpha")
               ? pairingData["neutron"]["alpha"].get<double>()
               : 0.0,
-          pairingData["neutron"].contains("eta")
-              ? pairingData["neutron"]["eta"].get<double>()
-              : 0.0,
+          pairingData.contains("eta") ? pairingData["eta"].get<double>() : 0.0,
           pairingData["neutron"].contains("windowBoth")
               ? pairingData["neutron"]["windowBoth"].get<bool>()
               : true,
@@ -137,9 +138,7 @@ InputParser::InputParser(std::string inputFile) {
           pairingData["proton"].contains("alpha")
               ? pairingData["proton"]["alpha"].get<double>()
               : 0.0,
-          pairingData["proton"].contains("eta")
-              ? pairingData["proton"]["eta"].get<double>()
-              : 0.0,
+          pairingData.contains("eta") ? pairingData["eta"].get<double>() : 0.0,
           pairingData["proton"].contains("windowBoth")
               ? pairingData["proton"]["windowBoth"].get<bool>()
               : true,
@@ -282,3 +281,5 @@ WoodsSaxonParameters InputParser::getWS() { return _woodsSaxonParameters; }
 WSSpinOrbitParameters InputParser::getWSSO() { return _WSSpinOrbitParameters; }
 
 Calculation InputParser::getCalculation() { return calculation; }
+
+nlohmann::json InputParser::getData() { return data; }

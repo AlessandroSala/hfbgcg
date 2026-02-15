@@ -10,12 +10,16 @@ namespace BCS {
 MatrixXd compute_G_pairing(const MatrixXcd &phi,
                            const std::vector<int> &unique_pairs,
                            const std::vector<int> &all_partners,
-                           PairingParameters params, NucleonType t) {
+                           PairingParameters params,
+                           const Eigen::VectorXd &rho0norm, NucleonType t) {
   auto grid = *Grid::getInstance();
   int num_pairs = unique_pairs.size();
   MatrixXcd G_p = MatrixXcd::Zero(num_pairs, num_pairs);
   MatrixXcd phi_bar = Wavefunction::timeReverse(phi);
 
+  VectorXd pairingInteraction =
+      params.V0 *
+      (Eigen::VectorXd::Ones(rho0norm.size()) - params.eta * rho0norm);
   for (int p = 0; p < num_pairs; ++p) {
     int i = unique_pairs[p];
     int i_bar = all_partners[i];
@@ -53,10 +57,11 @@ MatrixXd compute_G_pairing(const MatrixXcd &phi,
 
       double V0 = params.V0;
       using Wavefunction::density;
-      G_p(p, q) = V0 * Operators::integral(
-                           (VectorXd)(density(phi.col(i), grid).array() *
-                                      density(phi.col(j), grid).array()),
-                           grid);
+      G_p(p, q) =
+          Operators::integral((VectorXd)(density(phi.col(i), grid).array() *
+                                         density(phi.col(j), grid).array() *
+                                         pairingInteraction.array()),
+                              grid);
     }
   }
   return 0.5 * (G_p + G_p.adjoint()).real();
@@ -255,7 +260,8 @@ BCSResult solveBCS(const VectorXd &eps_pairs, const MatrixXd &G_pairing, int A,
 
 BCSResult BCSiter(const MatrixXcd &phi, const VectorXd &eps, int A,
                   PairingParameters params, NucleonType t,
-                  const VectorXd &oldDelta, double oldLambda) {
+                  const VectorXd &rho0norm, const VectorXd &oldDelta,
+                  double oldLambda) {
   int M = phi.cols();
   auto O = pairs(phi);
   auto timeReversalPairs = match_time_reversal(O);
@@ -293,8 +299,8 @@ BCSResult BCSiter(const MatrixXcd &phi, const VectorXd &eps, int A,
   if (oldDelta.size() != num_pairs * 2)
     oldDeltaUnique = oldDelta;
 
-  MatrixXd G_p =
-      compute_G_pairing(phi, unique_pairs, timeReversalPairs, params, t);
+  MatrixXd G_p = compute_G_pairing(phi, unique_pairs, timeReversalPairs, params,
+                                   rho0norm, t);
   BCSResult pair_results =
       solveBCS(eps_pairs, G_p, A, params, oldDeltaUnique, oldLambda);
 

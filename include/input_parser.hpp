@@ -118,6 +118,10 @@ public:
   bool constrainCOM;
 
   bool check();
+  bool useLN;
+  double rhoS = 0.16;
+
+  nlohmann::json getData();
 
 private:
   nlohmann::json data;

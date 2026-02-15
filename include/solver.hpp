@@ -45,3 +45,6 @@ std::pair<ComplexDenseMatrix, DenseVector> gcgm_complex_no_B_lock(
     const ComplexDenseMatrix &ConjDir, int nev, double shift, int max_iter,
     double tolerance, int cg_steps, double cg_tol, bool benchmark,
     EigenpairsOrdering ordering);
+std::pair<ComplexDenseMatrix, DenseVector>
+img_time_step(const ComplexSparseMatrix &A, const ComplexDenseMatrix &X_initial,
+              double dt);

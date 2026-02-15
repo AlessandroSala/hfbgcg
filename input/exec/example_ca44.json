@@ -1,4 +1,5 @@
 {
+  "dt": 0.001,
     "functional": "SLy5",
     "outputName": "Ca44",
     "outputDirectory": "Ca44",
@@ -8,7 +9,7 @@
     "initialBeta2": 0.0,
     "box": {
         "boxSize": 20.0,
-        "axisMeshPoints": 30
+        "axisMeshPoints": 20
     },
     "nucleus": {
         "A": 44,
@@ -16,6 +17,7 @@
     },
     "pairing": {
         "type": "HFB",
+        "eta": 0.0,
         "neutron": {
           "HFbasisSize": 50,
           "V0": 300.0

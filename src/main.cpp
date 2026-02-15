@@ -208,6 +208,7 @@ int main(int argc, char **argv) {
       Eigen::VectorXd protonSPEDiff(orbitalsN);
       neutronSPEDiff.setOnes();
       protonSPEDiff.setOnes();
+      bool useIMG = false;
 
       for (hfIter = 0; hfIter < calc.hf.cycles; ++hfIter) {
         if (hfIter == 1) {
@@ -234,8 +235,29 @@ int main(int argc, char **argv) {
 
         auto hN = skyrmeHam.buildMatrix();
 
-        auto newNeutronsEigenpair = solve(hN, ConjDirN, calc.hf.gcg,
-                                          neutronsEigenpair.first, orbitalsN);
+        double dt = input.getData()["dt"];
+        pair<MatrixXcd, VectorXd> newNeutronsEigenpair;
+
+        double errThreshIMG = 0.0;
+        size_t e_size = enErrors.size();
+
+        double scaleConj = 0.4;
+        // if (e_size > 3 &&
+        //     std::abs(enErrors[e_size - 1]) > std::abs(enErrors[e_size - 2]))
+        //     {
+        //   ConjDirN *= scaleConj;
+        //   ConjDirP *= scaleConj;
+        // }
+        if (enErrors.size() > 1 && std::abs(enErrors.back()) < errThreshIMG) {
+          useIMG = true;
+        }
+        if (!useIMG) {
+          newNeutronsEigenpair = solve(hN, ConjDirN, calc.hf.gcg,
+                                       neutronsEigenpair.first, orbitalsN);
+        } else {
+          std::cout << "Using IMG to achieve convergence" << dt << std::endl;
+          newNeutronsEigenpair = img_time_step(hN, neutronsEigenpair.first, dt);
+        }
 
         pair<MatrixXcd, VectorXd> newProtonsEigenpair;
         auto hP = hN;
@@ -247,8 +269,12 @@ int main(int argc, char **argv) {
 
           hP = skyrmeHam.buildMatrix();
 
-          newProtonsEigenpair = solve(hP, ConjDirP, calc.hf.gcg,
-                                      protonsEigenpair.first, orbitalsP);
+          if (!useIMG) {
+            newProtonsEigenpair = solve(hP, ConjDirP, calc.hf.gcg,
+                                        protonsEigenpair.first, orbitalsP);
+          } else {
+            newProtonsEigenpair = img_time_step(hP, protonsEigenpair.first, dt);
+          }
         } else {
           newProtonsEigenpair.first =
               newNeutronsEigenpair.first.leftCols(orbitalsP);

@@ -957,3 +957,18 @@ std::pair<ComplexDenseMatrix, DenseVector> gcgm_complex_no_B_lock(
 
   return {sorted_X, sorted_lambda};
 }
+
+std::pair<ComplexDenseMatrix, DenseVector>
+img_time_step(const ComplexSparseMatrix &A, const ComplexDenseMatrix &X_initial,
+              double dt) {
+  Eigen::MatrixXcd X_new = X_initial - dt * A * X_initial;
+  b_modified_gram_schmidt_complex_no_B(X_new);
+
+  Eigen::VectorXd eig_vals(X_new.cols());
+  Eigen::MatrixXcd AX = A * X_new;
+
+  for (int i = 0; i < X_new.cols(); ++i) {
+    eig_vals(i) = X_new.col(i).dot(AX.col(i)).real();
+  }
+  return {X_new, eig_vals};
+}
