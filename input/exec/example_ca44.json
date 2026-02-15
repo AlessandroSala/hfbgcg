@@ -1,5 +1,4 @@
 {
-  "dt": 0.001,
     "functional": "SLy5",
     "outputName": "Ca44",
     "outputDirectory": "Ca44",
@@ -9,7 +8,7 @@
     "initialBeta2": 0.0,
     "box": {
         "boxSize": 20.0,
-        "axisMeshPoints": 20
+        "axisMeshPoints": 30
     },
     "nucleus": {
         "A": 44,
