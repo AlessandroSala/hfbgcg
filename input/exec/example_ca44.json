@@ -3,7 +3,7 @@
     "outputName": "Ca44",
     "outputDirectory": "Ca44",
     "maxIterations": 150,
-    "energyTol": 1e-05,
+    "energyTol": 1e-06,
     "densityMix": 0.35,
     "initialBeta2": 0.0,
     "box": {

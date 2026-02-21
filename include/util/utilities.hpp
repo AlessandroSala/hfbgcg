@@ -14,6 +14,7 @@ namespace Utilities {
 
 void printKV(const std::string &key, double value, int widthKey, int widthVal,
              int precision, bool scientific);
+void executionHeader(InputParser input, std::ostream &os);
 
 double mu20FromBeta(double beta, double R, int A);
 std::pair<Eigen::MatrixXcd, Eigen::VectorXd>

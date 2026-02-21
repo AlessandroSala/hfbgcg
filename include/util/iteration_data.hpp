@@ -11,6 +11,20 @@ class Grid;
 class EffectiveMass;
 class EDF;
 
+typedef struct DataRecap {
+  int iter;
+  double lambdaN;
+  double lambdaP;
+  double EpairN;
+  double EpairP;
+  double energy;
+  double time;
+  double relError;
+  double beta2;
+  double gamma;
+} DataRecap;
+
+std::ostream &operator<<(std::ostream &os, const DataRecap &data);
 typedef struct QuadrupoleDeformation {
   double beta;
   double gamma;
@@ -65,6 +79,7 @@ public:
   UV HFBResultP;
   double oldLambdaN;
   double oldLambdaP;
+  std::vector<DataRecap> dataRecaps;
 
   Eigen::VectorXd UCDir;
 
@@ -163,7 +178,8 @@ public:
   void
   logData(const std::pair<Eigen::MatrixXcd, Eigen::VectorXd> &neutronsEigenpair,
           const std::pair<Eigen::MatrixXcd, Eigen::VectorXd> &protonsEigenpair,
-          const std::vector<std::unique_ptr<Constraint>> &constraints);
+          const std::vector<std::unique_ptr<Constraint>> &constraints, int iter,
+          double enDiff);
 
   IterationData(InputParser input);
 };

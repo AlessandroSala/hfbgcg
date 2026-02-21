@@ -4,6 +4,7 @@
 #include "operators/integral_operators.hpp"
 #include "spherical_harmonics.hpp"
 #include "util/iteration_data.hpp"
+#include "util/output.hpp"
 #include <cmath>
 
 double IterationData::EpairP() {
@@ -58,7 +59,7 @@ QuadrupoleDeformation IterationData::quadrupoleDeformation() {
   double a22 = SphericalHarmonics::Q(2, 2, rho).real();
   double R = 1.2 * pow(A, 1.0 / 3.0);
 
-  double gamma = atan2(std::sqrt(2) * a22, a20);
+  double gamma = atan2(std::sqrt(2) * std::abs(a22), std::abs(a20));
 
   double beta = 4 * M_PI * a20 / (3 * A * R * R);
   double betaSim = 4 * M_PI * a20 / (5 * A * radius());

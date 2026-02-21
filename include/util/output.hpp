@@ -11,7 +11,7 @@ private:
 public:
   Output();
   Output(std::string folder_, std::string outputName_);
-  double x2(IterationData *data, const Grid &grid, char dir);
+  static double x2(IterationData *data, const Grid &grid, char dir);
   void swapAxes(Eigen::VectorXd &vec, int axis1, int axis2);
   void matrixToFile(std::string fileName, Eigen::MatrixXd matrix);
   void

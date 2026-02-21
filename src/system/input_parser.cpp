@@ -91,7 +91,7 @@ InputParser::InputParser(std::string inputFile) {
       data.contains("densityMix") ? data["densityMix"].get<double>() : 0.25;
   A = data["nucleus"]["A"];
   Z = data["nucleus"]["Z"];
-  std::string interactionName = data["functional"];
+  interactionName = data["functional"];
   pairing = data.contains("pairing");
   if (pairing) {
     auto pairingData = data["pairing"];

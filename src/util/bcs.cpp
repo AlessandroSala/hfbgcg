@@ -129,7 +129,7 @@ BCSResult solveBCS(const VectorXd &eps_pairs, const MatrixXd &G_pairing, int A,
   if (oldDelta.size() == num_pairs && oldDelta.maxCoeff() > 1e-3) {
     Delta = oldDelta;
   } else {
-    std::cout << "Reinitializing pairing gaps" << std::endl;
+    // std::cout << "Reinitializing pairing gaps" << std::endl;
   }
   const double window_smoothness = params.window / 10.0;
 

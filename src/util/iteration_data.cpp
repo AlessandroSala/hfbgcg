@@ -13,13 +13,58 @@
 #include "util/wavefunction.hpp"
 #include <chrono>
 #include <cmath>
+#include <iomanip>
 #include <iostream>
 #include <memory>
+#include <string>
+
+std::ostream &operator<<(std::ostream &os, const DataRecap &data) {
+  os << std::setw(5) << data.iter << std::setw(15) << data.lambdaN
+     << std::setw(15) << data.lambdaP << std::setw(15) << data.EpairN
+     << std::setw(15) << data.EpairP << std::setw(12) << data.beta2
+     << std::setw(12) << data.gamma << "°" << std::setw(15) << data.relError
+     << std::setw(18) << data.energy;
+  return os;
+}
+
+void printHeader() {
+  using std::cout;
+  using std::left;
+  using std::right;
+  using std::setw;
+
+  // These must match the operator<< exactly
+  constexpr int wIter = 5;
+  constexpr int wVal = 15; // lambdaN, lambdaP, EpairN, EpairP, relError
+  constexpr int wDef = 12; // beta2, gamma
+  constexpr int wEnergy = 18;
+
+  // Gamma has a 1-character degree symbol appended in the operator<<
+  // So the total width for the gamma column is wDef + 1
+  const int totalWidth = wIter + (4 * wVal) + (2 * wDef + 1) + wVal + wEnergy;
+
+  cout << "\n" << std::string(totalWidth, '=') << "\n";
+
+  cout << setw(wIter) << " " << setw(2 * wVal) << "--- Fermi Energies ---"
+       << setw(2 * wVal) << "--- Pairing (MeV) ---" << setw(2 * wDef + 1)
+       << "--- Deformation ---" << setw(wVal) << " " << setw(wEnergy) << " "
+       << std::endl;
+
+  cout << setw(wIter) << "Iter" << setw(wVal) << "Neutron" << setw(wVal)
+       << "Proton" << setw(wVal) << "Neutron" << setw(wVal) << "Proton"
+       << setw(wDef) << "Beta" << setw(wDef + 1) << "gamma" << setw(wVal)
+       << "En. Error" << setw(wEnergy) << "Energy (MeV)" << std::endl;
+
+  cout << std::string(totalWidth, '-') << std::endl;
+}
 
 void IterationData::logData(
     const std::pair<Eigen::MatrixXcd, Eigen::VectorXd> &neutronsEigenpair,
     const std::pair<Eigen::MatrixXcd, Eigen::VectorXd> &protonsEigenpair,
-    const std::vector<std::unique_ptr<Constraint>> &constraints) {
+    const std::vector<std::unique_ptr<Constraint>> &constraints, int iter,
+    double enDiff) {
+  if (iter == 0)
+    printHeader();
   auto grid = *Grid::getInstance();
   using std::cout;
   using std::endl;
@@ -32,28 +77,29 @@ void IterationData::logData(
       0.5 * (neutronsEigenpair.second.sum() + protonsEigenpair.second.sum());
   double newHFEnergy = HFEnergy(2.0 * SPE, constraints);
 
-  cout << endl;
-  cout << "Integrated EDF: " << newIntegralEnergy
-       << ", HF energy: " << newHFEnergy << endl;
+  // cout << endl;
+  // cout << "Integrated EDF: " << newIntegralEnergy
+  //      << ", HF energy: " << newHFEnergy << endl;
 
   // cout << "Coulomb: Direct energy: " << CoulombDirectEnergy(grid)
   //      << ", exchange energy: " << SlaterCoulombEnergy(grid) << endl;
-  cout << "Pairing energy: Neutrons: " << EpairN() << ", Protons: " << EpairP()
-       << endl;
+  // cout << "Pairing energy: Neutrons: " << EpairN() << ", Protons: " <<
+  // EpairP()
+  //     << endl;
   unsigned int unbound_states = 0;
   for (int i = 0; i < neutronsEigenpair.second.size(); i++) {
     if (neutronsEigenpair.second(i) > 0.0) {
       unbound_states++;
     }
   }
-  cout << "E>0 states in HF basis, Neutrons: " << unbound_states;
+  // cout << "E>0 states in HF basis, Neutrons: " << unbound_states;
   unbound_states = 0;
   for (int i = 0; i < protonsEigenpair.second.size(); i++) {
     if (protonsEigenpair.second(i) > 0.0) {
       unbound_states++;
     }
   }
-  cout << ", Protons: " << unbound_states << endl;
+  // cout << ", Protons: " << unbound_states << endl;
   double fermiN = neutronsEigenpair.second(N - 1);
   double fermiP = protonsEigenpair.second(Z - 1);
   if (input.pairingType == PairingType::hfb) {
@@ -67,28 +113,42 @@ void IterationData::logData(
     if (input.pairingP.active)
       fermiP = bcsP.lambda;
   }
-
-  cout << "Fermi energy: Neutrons: " << fermiN << ", Protons: " << fermiP
-       << endl;
-
-  std::cout << "X2: " << axis2Exp('x') << ", ";
-  std::cout << "Y2: " << axis2Exp('y') << ", ";
-  std::cout << "Z2: " << axis2Exp('z') << std::endl;
-  // std::cout << "RN: " << std::sqrt(neutronRadius()) << ", ";
-  // std::cout << "RP: " << std::sqrt(protonRadius()) << ", ";
-  // std::cout << "CR: "
-  //           << std::sqrt(chargeRadius(neutronsEigenpair.first,
-  //                                     protonsEigenpair.first, N,
-  //                                     input.getZ()))
-  //           << std::endl;
-
   auto [beta, gamma] = quadrupoleDeformation();
+  DataRecap data = {
+      .iter = iter,
+      .lambdaN = fermiN,
+      .lambdaP = fermiP,
+      .EpairN = EpairN(),
+      .EpairP = EpairP(),
+      .energy = newIntegralEnergy,
+      .time = 0.0,
+      .relError = enDiff,
+      .beta2 = beta,
+      .gamma = gamma * 180 / M_PI,
+  };
+  dataRecaps.push_back(data);
+  cout << data << endl;
 
-  std::cout << "Beta2: " << beta << ", Gamma: " << gamma * 180.0 / M_PI << "°" 
-            << std::endl;
-  std::cout << std::endl;
-  // std::cout << "Beta w/ physical radius: " << betaRealRadius()
-  //           << ", Gamma: " << gamma * 180.0 / M_PI << " deg" << std::endl;
+  // cout << "Fermi energy: Neutrons: " << fermiN << ", Protons: " << fermiP
+  //      << endl;
+
+  // std::cout << "X2: " << axis2Exp('x') << ", ";
+  // std::cout << "Y2: " << axis2Exp('y') << ", ";
+  // std::cout << "Z2: " << axis2Exp('z') << std::endl;
+  //  std::cout << "RN: " << std::sqrt(neutronRadius()) << ", ";
+  //  std::cout << "RP: " << std::sqrt(protonRadius()) << ", ";
+  //  std::cout << "CR: "
+  //            << std::sqrt(chargeRadius(neutronsEigenpair.first,
+  //                                      protonsEigenpair.first, N,
+  //                                      input.getZ()))
+  //            << std::endl;
+
+  // std::cout << "Beta2: " << beta << ", Gamma: " << gamma * 180.0 / M_PI <<
+  // "°" 
+  //           << std::endl;
+  // std::cout << std::endl;
+  //  std::cout << "Beta w/ physical radius: " << betaRealRadius()
+  //            << ", Gamma: " << gamma * 180.0 / M_PI << " deg" << std::endl;
 }
 
 IterationData::IterationData(InputParser input) : input(input) {
@@ -922,8 +982,8 @@ void IterationData::updateQuantities(
   if (input.pairingType == PairingType::hfb) {
 
     if (iter < input.startHFBIter) {
-      std::cout << "> BCS step " << (iter + 1) << "/" << input.startHFBIter
-                << " to seed HFB" << std::endl;
+      // std::cout << "> BCS step " << (iter + 1) << "/" << input.startHFBIter
+      //           << " to seed HFB" << std::endl;
       solvePairingBCS(neutronsPair, protonsPair);
       neutrons = neutronsFromBCS(neutronsPair.first);
       protons = protonsFromBCS(protonsPair.first);
@@ -954,7 +1014,7 @@ void IterationData::updateQuantities(
         HFBResultP.pairingField = Eigen::VectorXd::Zero(0);
         HFBResultN.Delta = Eigen::MatrixXd::Zero(0, 0);
         HFBResultP.Delta = Eigen::MatrixXd::Zero(0, 0);
-        std::cout << "> Initializing pairing tensor using BCS" << std::endl;
+        // std::cout << "> Initializing pairing tensor using BCS" << std::endl;
         HFBResultN.kappa = Eigen::MatrixXd::Zero(neutronsPair.second.size(),
                                                  neutronsPair.second.size());
         HFBResultN.V = Eigen::MatrixXd::Zero(neutronsPair.second.size(),
@@ -986,7 +1046,7 @@ void IterationData::updateQuantities(
       }
 
       auto res = solvePairingHFB(neutronsPair, protonsPair);
-      std::cout << "> HFB routine completed" << std::endl;
+      // std::cout << "> HFB routine completed" << std::endl;
 
       HFBResultN = res.uv_n;
       HFBResultP = res.uv_p;
@@ -1110,7 +1170,7 @@ void IterationData::updateQuantities(
     divJP = Eigen::VectorXd::Zero(grid.get_total_spatial_points());
   }
   Eigen::VectorXd divJ = divJN + divJP;
-  std::cout << "> Densities updated" << std::endl;
+  // std::cout << "> Densities updated" << std::endl;
 
   // reset for fields, fields mixing is supported but not done
   mu = 1.0;

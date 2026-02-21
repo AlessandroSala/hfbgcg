@@ -73,6 +73,7 @@ double Utilities::mu20FromBeta(double beta, double R, int A) {
 }
 double Utilities::computeDispersion(const ComplexSparseMatrix &h,
                                     const ComplexDenseMatrix &X) {
+
   ComplexDenseMatrix HX = h * X;
   ComplexDenseMatrix HHX = h.adjoint() * HX;
   auto grid = *Grid::getInstance();
@@ -93,4 +94,50 @@ double Utilities::computeDispersion(const ComplexSparseMatrix &h,
   }
 
   return sum / X.cols();
+}
+void Utilities::executionHeader(InputParser input, std::ostream &os) {
+  std::ios_base::fmtflags f(os.flags());
+  using std::fixed;
+  using std::left;
+  using std::right;
+  using std::scientific;
+  using std::setprecision;
+  using std::setw;
+
+  const int totalWidth = 90;
+  auto line = [&](char c = '-') { os << std::string(totalWidth, c) << "\n"; };
+
+  os << "\n"
+     << right << setw(totalWidth / 2 + 2)
+     << "Skyrme Force = " << input.interactionName << "\n";
+  os << right << setw(totalWidth / 2 - 10)
+     << "--  N = " << input.getA() - input.getZ()
+     << "  --  Z = " << input.getZ() << "  --\n";
+
+  line('-');
+  os << left << setw(35) << std::string(35, '-') << " INPUT DATA "
+     << std::string(totalWidth - 47, '-') << "\n";
+
+  os << "  " << left << setw(10) << "it_max =" << setw(12)
+     << input.getCalculation().hf.cycles << setw(13)
+     << "Energy tol. =" << scientific << setprecision(3) << setw(18)
+     << input.calculation.hf.energyTol << " MeV" << "\n";
+
+  auto grid = Grid::getInstance();
+  double dx = grid->get_h();
+  os << "  " << left << setw(15) << "Box Geometry:"
+     << "size = [-" << fixed << setprecision(2) << grid->get_a() << ", "
+     << grid->get_a() << "] fm" << setw(8) << " " << "npt =" << setw(10)
+     << grid->get_n() << "step (dx) =" << setprecision(3) << dx << " fm\n";
+
+  os << "  " << left << setw(18) << "Pairing Window:"
+     << "N: +/-" << setprecision(2) << setw(6) << input.pairingN.window
+     << " MeV (mu =" << setw(5) << input.pairingN.window / 10 << ") | "
+     << "P: +/-" << setprecision(2) << setw(6) << input.pairingP.window
+     << " MeV (mu =" << setw(5) << input.pairingP.window / 10 << ")\n";
+
+  line('-');
+
+  os << std::defaultfloat << setprecision(6);
+  os.flags(f);
 }

@@ -45,16 +45,12 @@ int main(int argc, char **argv) {
 
   // Eigen::initParallel();
   int n_threads = std::thread::hardware_concurrency();
-  std::cout << "threads: " << n_threads << std::endl;
   omp_set_num_threads(n_threads);
   Eigen::setNbThreads(n_threads);
 
   std::string inputName = "";
 
-  std::cout << "Using " << Eigen::nbThreads() << " threads" << std::endl;
-
   if (argc > 1) {
-    cout << "Trying to read input from " << argv[1] << endl;
     inputName = argv[1];
   }
 
@@ -78,6 +74,7 @@ int main(int argc, char **argv) {
     Grid grid = input.get_grid();
     Calculation calc = input.getCalculation();
 
+    Utilities::executionHeader(input, std::cout);
     std::vector<double> betas;
     int A = input.getA();
     int Z = input.getZ();
@@ -92,7 +89,6 @@ int main(int argc, char **argv) {
     std::pair<ComplexDenseMatrix, DenseVector> eigenpair;
     vector<shared_ptr<Potential>> pots;
 
-    std::cout << std::endl;
     Radius radius(input.initialBeta, WS.r0, A);
 
     pots.push_back(make_shared<DeformedWoodsSaxonPotential>(
@@ -109,7 +105,7 @@ int main(int argc, char **argv) {
     auto guess = harmonic_oscillator_guess(grid, max, nucRadius,
                                            input.initialBeta, true);
 
-    std::cout << "=== Woods-Saxon guess ===" << std::endl;
+    std::cout << "Computing Woods-Saxon guess..." << std::endl;
     pair<MatrixXcd, VectorXd> firstEigenpair =
         solve(initialWS.build_matrix5p(), Eigen::MatrixXcd(0, 0),
               calc.initialGCG, guess);
@@ -230,8 +226,8 @@ int main(int argc, char **argv) {
                               constraints);
         int maxIterGCGHF = calc.hf.gcg.maxIter;
 
-        cout << endl;
-        cout << "======= Iteration: " << hfIter << " =======" << endl;
+        // cout << endl;
+        //  cout << "======= Iteration: " << hfIter << " =======" << endl;
 
         vector<shared_ptr<Potential>> pots;
         auto dataPtr = make_shared<IterationData>(data);
@@ -354,38 +350,34 @@ int main(int argc, char **argv) {
         double newHFEnergy = data.HFEnergy(SPE, constraints);
         bool constraintsConv = true;
         if (constraints.size() > 0) {
-          std::cout << "Constraints errors: ";
+          // std::cout << "Constraints errors: ";
           for (auto &&constraint : constraints) {
             if (constraint->error() != 0.0) {
-              std::cout << constraint->error() << ", ";
+              // std::cout << constraint->error() << ", ";
               constraintsConv = constraintsConv &&
                                 (constraint->error() < input.constraintsTol);
             }
           }
-          // std::cout << "Constraints energies: ";
-          // for (auto &&constraint : constraints) {
-          //   std::cout << constraint->evaluate(&data) << ", ";
-          // }
         }
-        std::cout << std::endl;
+        // std::cout << std::endl;
         HFEnergies.push_back(newHFEnergy);
 
         double e_int_diff = std::abs(newIntegralEnergy - integralEnergy);
         double e_int_diff_rel = e_int_diff / newIntegralEnergy;
-        std::cout << "ED diff (rel): " << e_int_diff_rel
-                  << " (abs): " << e_int_diff << std::endl;
+        // std::cout << "ED diff (rel): " << e_int_diff_rel
+        //           << " (abs): " << e_int_diff << std::endl;
         enErrors.push_back((newIntegralEnergy - integralEnergy));
         double maxDiff = 0.0;
 
         double tol = input.getCalculation().hf.energyTol;
-        if (abs(newIntegralEnergy - integralEnergy) < tol &&
-            abs(newHFEnergy - HFEnergy) < tol && constraintsConv) {
+        if (abs(newIntegralEnergy - integralEnergy) < tol && constraintsConv) {
           break;
         }
         data.energyDiff = std::abs(newHFEnergy - HFEnergy);
+        data.logData(neutronsEigenpair, protonsEigenpair, constraints, hfIter,
+                     abs(newIntegralEnergy - integralEnergy));
         integralEnergy = newIntegralEnergy;
         HFEnergy = newHFEnergy;
-        data.logData(neutronsEigenpair, protonsEigenpair, constraints);
         if (hfIter % 5 == 0)
           out.logStatus(&data, hfIter, integralEnergy, data.energyDiff, false);
       }

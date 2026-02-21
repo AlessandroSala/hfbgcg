@@ -288,18 +288,18 @@ void Output::shellsToFile(
   file << std::endl;
 
   using namespace SphericalHarmonics;
-  file << "=== Multipole moments ===" << std::endl;
+  // file << "=== Multipole moments ===" << std::endl;
 
-  int l_max = find_multipoles_number(input.log);
-  if (l_max > 0) {
-    for (int l = 0; l <= std::min(l_max, 5); ++l) {
-      file << "l: " << l << std::endl;
-      for (int m = -l; m <= l; ++m) {
-        file << l << ", " << m << ": " << Q(l, m, rho) << std::endl;
-      }
-      file << std::endl;
-    }
-  }
+  // int l_max = find_multipoles_number(input.log);
+  // if (l_max > 0) {
+  //   for (int l = 0; l <= std::min(l_max, 5); ++l) {
+  //     file << "l: " << l << std::endl;
+  //     for (int m = -l; m <= l; ++m) {
+  //       file << l << ", " << m << ": " << Q(l, m, rho) << std::endl;
+  //     }
+  //     file << std::endl;
+  //   }
+  // }
 
   std::string outputFilesDir = folder + "/";
   std::filesystem::create_directory(outputFilesDir);

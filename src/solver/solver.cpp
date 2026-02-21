@@ -639,6 +639,35 @@ std::pair<ComplexDenseMatrix, DenseVector> gcgm_complex_no_B(
   return {X, Lambda};
 }
 
+void recursive_ortho(ComplexDenseMatrix &V) {
+  if (V.cols() == 0)
+    return;
+
+  using Eigen::indexing::all, Eigen::indexing::seq;
+
+  int start = 0;
+  int end = V.cols() - 1;
+  Eigen::MatrixXcd V1;
+  Eigen::MatrixXcd V2 = V;
+  for (int reorth = 0; reorth < 2; ++reorth) {
+    for (int i = 0; i < start - 1; ++i) {
+      Eigen::MatrixXcd prod = V1.adjoint() * V2;
+      V2 = V2 - V.col(i) * prod;
+    }
+    for (int i = start; i <= end; ++i) {
+      Eigen::MatrixXcd prod = V.col(i).adjoint() * V(all, seq(i, end));
+      std::complex<double> norm = std::sqrt(prod(0));
+      if (std::abs(norm) > 1e-12) {
+        V(all, seq(i + 1, end)) =
+            V(all, seq(i + 1, end)) - prod(all, seq(1, end)) * V.col(i) / norm;
+      } else {
+        V.col(i) = V.col(end - 1);
+        end = end - 1;
+        i = i - 1;
+      }
+    }
+  }
+}
 std::pair<ComplexDenseMatrix, DenseVector> gcgm_complex_no_B_lock(
     const ComplexSparseMatrix &A, const ComplexDenseMatrix &X_initial,
     const ComplexDenseMatrix &ConjDir, int nev, double shift = 0.0,
@@ -676,7 +705,9 @@ std::pair<ComplexDenseMatrix, DenseVector> gcgm_complex_no_B_lock(
 
   b_modified_gram_schmidt_complex_no_B(X);
   ComplexSparseMatrix A_shifted = A + ComplexScalar(current_shift) * Id;
+  start_op = Clock::now();
   auto rr_init = rayleighRitz_complex_no_B(X, A_shifted, X.cols());
+  end_op = Clock::now();
   if (rr_init.first.cols() == 0) {
     std::cerr << "Error: Initial Complex Rayleigh-Ritz failed." << std::endl;
     return {};
@@ -728,13 +759,14 @@ std::pair<ComplexDenseMatrix, DenseVector> gcgm_complex_no_B_lock(
     if (num_active > 0) {
       ComplexDenseMatrix BXLambda =
           X * (Lambda.array() + current_shift).matrix().asDiagonal();
-      start_op = Clock::now();
 #pragma omp parallel for
       for (int i = 0; i < maxThreads; ++i) {
         cgSolvers[i].setMaxIterations(cg_steps);
         cgSolvers[i].setTolerance(cg_tol);
         cgSolvers[i].compute(A_shifted);
       }
+      start_op = Clock::now();
+
 #pragma omp parallel for
       for (int k = 0; k < num_active; ++k) {
         int threadId = omp_get_thread_num();
@@ -752,7 +784,9 @@ std::pair<ComplexDenseMatrix, DenseVector> gcgm_complex_no_B_lock(
       V.block(0, num_converged + num_active, n, p_cols) = P;
     if (num_active > 0)
       V.block(0, num_converged + num_active + p_cols, n, num_active) = W;
+    start_op = Clock::now();
     b_modified_gram_schmidt_complex_no_B(V);
+    end_op = Clock::now();
     std::vector<int> keep_cols;
     for (int k = 0; k < V.cols(); ++k) {
       if (V.col(k).squaredNorm() > 1e-20)

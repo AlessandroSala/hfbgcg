@@ -95,6 +95,7 @@ public:
   WoodsSaxonParameters getWS();
 
   WSSpinOrbitParameters getWSSO();
+  std::string interactionName;
   std::string outputDirectory;
   std::vector<std::string> log;
   double initialBeta;

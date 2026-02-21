@@ -2,9 +2,9 @@
 #include <iostream>
 
 EDF::EDF(nlohmann::json functional) {
-  std::cout << functional << std::endl;
+  // std::cout << functional << std::endl;
   if (functional.contains("t0")) {
-    std::cout << "Converting interaction to EDF" << std::endl;
+    // std::cout << "Converting interaction to EDF" << std::endl;
 
     double W0, W0_pr;
     W0 = functional["W0"];
@@ -41,13 +41,13 @@ EDF::EDF(nlohmann::json functional) {
 
     setFromInteraction(interaction);
 
-    std::cout << "C0rr: " << params.C0rr << ", C1rr: " << params.C1rr
-              << ", C0Drr: " << params.C0Drr << ", C1Drr: " << params.C1Drr
-              << ", C0rt: " << params.C0rt << ", C1rt: " << params.C1rt
-              << ", C0J2: " << params.C0J2 << ", C1J2: " << params.C1J2
-              << ", C0rdr: " << params.C0rdr << ", C1rdr: " << params.C1rdr
-              << ", C0nJ: " << params.C0nJ << ", C1nJ: " << params.C1nJ
-              << ", sigma: " << params.sigma << std::endl;
+    // std::cout << "C0rr: " << params.C0rr << ", C1rr: " << params.C1rr
+    //           << ", C0Drr: " << params.C0Drr << ", C1Drr: " << params.C1Drr
+    //           << ", C0rt: " << params.C0rt << ", C1rt: " << params.C1rt
+    //           << ", C0J2: " << params.C0J2 << ", C1J2: " << params.C1J2
+    //           << ", C0rdr: " << params.C0rdr << ", C1rdr: " << params.C1rdr
+    //           << ", C0nJ: " << params.C0nJ << ", C1nJ: " << params.C1nJ
+    //           << ", sigma: " << params.sigma << std::endl;
   } else {
     params = (FunctionalParameters{
         functional["C0rr"], functional["C1rr"], functional["C0Drr"],
